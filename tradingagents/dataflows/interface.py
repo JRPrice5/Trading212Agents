@@ -3,6 +3,7 @@ from .reddit_utils import fetch_top_from_category
 from .yfin_utils import *
 from .stockstats_utils import *
 from .googlenews_utils import *
+from .trading212_utils import *
 from .finnhub_utils import get_data_in_range
 from dateutil.relativedelta import relativedelta
 from concurrent.futures import ThreadPoolExecutor
@@ -14,6 +15,159 @@ from tqdm import tqdm
 import yfinance as yf
 from openai import OpenAI
 from .config import get_config, set_config, DATA_DIR
+
+
+"""
+[
+{
+  "averagePrice": 0,
+  "currentPrice": 0,
+  "frontend": "API",
+  "fxPpl": 0,
+  "initialFillDate": "2019-08-24T14:15:22Z",
+  "maxBuy": 0,
+  "maxSell": 0,
+  "pieQuantity": 0,
+  "ppl": 0,
+  "quantity": 0,
+  "ticker": "AAPL_US_EQ"
+}
+]
+
+Limited: 1 / 5s"""
+def get_trading212_positions():
+    """Fetch all open positions from Trading212 API
+
+    Returns
+        str: dataframe containing all open positions
+        """
+    api_key = os.getenv('TRADING_212_API_KEY')
+    if not api_key:
+        raise ValueError("TRADING_212_API_KEY environment variable not set")
+    result = get_trading212_data("positions")
+
+    df = pd.DataFrame(result)
+
+    return df
+
+
+"""
+{
+  "averagePrice": 0,
+  "currentPrice": 0,
+  "frontend": "API",
+  "fxPpl": 0,
+  "initialFillDate": "2019-08-24T14:15:22Z",
+  "maxBuy": 0,
+  "maxSell": 0,
+  "pieQuantity": 0,
+  "ppl": 0,
+  "quantity": 0,
+  "ticker": "AAPL_US_EQ"
+}
+
+Limited: 1 / 1s"""
+def get_trading212_position(
+        ticker: Annotated[
+            str,
+            "Search query of a company's, e.g. 'AAPL, TSM, etc.",
+        ],
+):
+    """Fetch a specific open position from Trading212 API
+
+    Returns
+        str: dataframe containing the specified open position
+    """
+    api_key = os.getenv('TRADING_212_API_KEY')
+    if not api_key:
+        raise ValueError("TRADING_212_API_KEY environment variable not set")
+    result = get_trading212_data("position", ticker=ticker)
+
+    df = pd.DataFrame([result])
+
+    return df
+
+
+"""Limited: 1 / 2s"""
+def get_trading212_uninvested_cash():
+    """Get uninvested cash from Trading212 API
+
+    Returns
+        str: dataframe containing uninvested cash
+    """
+    api_key = os.getenv('TRADING_212_API_KEY')
+    if not api_key:
+        raise ValueError("TRADING_212_API_KEY environment variable not set")
+    result = get_trading212_data("account balance")
+
+    pie_cash = result["pieCash"]
+
+    df = pd.DataFrame([{'pieCash': pie_cash}])
+
+    return df
+
+
+"""
+{
+  "items": [
+    {
+      "amount": 0,
+      "dateTime": "2019-08-24T14:15:22Z",
+      "reference": "string",
+      "type": "WITHDRAW"
+    }
+  ],
+  "nextPagePath": "string"
+}
+
+The nextPagePath in the Trading 212 transaction history API response is a URL or path for
+ pagination. It indicates that more transaction data is available than returned in the current
+  response. To retrieve the next set of transactions, you make another API call using the URL
+   provided in nextPagePath. You continue this process until nextPagePath is no longer present,
+    signifying that all available transactions have been retrieved.
+
+Types:
+    DEPOSIT: Funds added to your account.
+    WITHDRAW: Funds removed from your account.
+    BUY: Purchase of an instrument (e.g., stock, ETF).
+    SELL: Sale of an instrument.
+    DIVIDEND: Income received from dividends on holdings.
+    INTEREST: Interest earned on uninvested cash (if applicable to your account type).
+    FEE: Charges incurred (e.g., trading fees, currency conversion fees, inactivity fees).
+    TAX: Taxes applied to transactions or income.
+    TRANSFER: Funds moved between different accounts or sub-accounts within Trading 212 (e.g., Invest to ISA).
+    ADJUSTMENT: Miscellaneous adjustments to the account balance.
+Limited: 6 / 1m0s
+"""
+def get_trading212_transaction_history():
+    """
+    Get transaction history from Trading212 API
+
+    Returns
+        str: dataframe containing transaction history
+    """
+    api_key = os.getenv('TRADING_212_API_KEY')
+    if not api_key:
+        raise ValueError("TRADING_212_API_KEY environment variable not set")
+    result = get_trading212_data("transaction history")
+
+    if result["nextPagePath"] != "":
+        current_page_path = result["nextPagePath"]
+
+        while current_page_path != "":
+            next_result = get_trading212_data("transaction history", next_page_path=current_page_path)
+
+            result["items"] = result["items"] + next_result["items"]
+
+            current_page_path = next_result["nextPagePath"]
+
+    df = pd.DataFrame(result["items"])
+
+    df['dateTime'] = pd.to_datetime(df['dateTime'])
+
+    df = df.set_index('reference')
+
+    return df
 
 
 def get_finnhub_news(

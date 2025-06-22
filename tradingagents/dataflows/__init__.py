@@ -3,6 +3,7 @@ from .googlenews_utils import getNewsData
 from .yfin_utils import YFinanceUtils
 from .reddit_utils import fetch_top_from_category
 from .stockstats_utils import StockstatsUtils
+from .trading212_utils import get_trading212_data
 from .yfin_utils import YFinanceUtils
 
 from .interface import (
@@ -23,6 +24,11 @@ from .interface import (
     # Market data functions
     get_YFin_data_window,
     get_YFin_data,
+    # Personal portfolio functions
+    get_trading212_positions,
+    get_trading212_position,
+    get_trading212_uninvested_cash,
+    get_trading212_transaction_history
 )
 
 __all__ = [
@@ -43,4 +49,9 @@ __all__ = [
     # Market data functions
     "get_YFin_data_window",
     "get_YFin_data",
+    # Personal portfolio functions
+    "get_trading212_positions",
+    "get_trading212_position",
+    "get_trading212_uninvested_cash",
+    "get_trading212_transaction_history"
 ]
