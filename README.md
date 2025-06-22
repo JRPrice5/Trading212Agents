@@ -1,45 +1,4 @@
-<p align="center">
-  <img src="assets/TauricResearch.png" style="width: 60%; height: auto;">
-</p>
-
-<div align="center" style="line-height: 1;">
-  <a href="https://arxiv.org/abs/2412.20138" target="_blank"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2412.20138-B31B1B?logo=arxiv"/></a>
-  <a href="https://discord.com/invite/hk9PGKShPK" target="_blank"><img alt="Discord" src="https://img.shields.io/badge/Discord-TradingResearch-7289da?logo=discord&logoColor=white&color=7289da"/></a>
-  <a href="./assets/wechat.png" target="_blank"><img alt="WeChat" src="https://img.shields.io/badge/WeChat-TauricResearch-brightgreen?logo=wechat&logoColor=white"/></a>
-  <a href="https://x.com/TauricResearch" target="_blank"><img alt="X Follow" src="https://img.shields.io/badge/X-TauricResearch-white?logo=x&logoColor=white"/></a>
-  <br>
-  <a href="https://github.com/TauricResearch/" target="_blank"><img alt="Community" src="https://img.shields.io/badge/Join_GitHub_Community-TauricResearch-14C290?logo=discourse"/></a>
-</div>
-
-<div align="center">
-  <!-- Keep these links. Translations will automatically update with the README. -->
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=de">Deutsch</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=es">Español</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=fr">français</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=ja">日本語</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=ko">한국어</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=pt">Português</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=ru">Русский</a> | 
-  <a href="https://www.readme-i18n.com/TauricResearch/TradingAgents?lang=zh">中文</a>
-</div>
-
----
-
-# TradingAgents: Multi-Agents LLM Financial Trading Framework 
-
-> 🎉 **TradingAgents** officially released! We have received numerous inquiries about the work, and we would like to express our thanks for the enthusiasm in our community.
->
-> So we decided to fully open-source the framework. Looking forward to building impactful projects with you!
-
-<div align="center">
-<a href="https://www.star-history.com/#TauricResearch/TradingAgents&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=TauricResearch/TradingAgents&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=TauricResearch/TradingAgents&type=Date" />
-   <img alt="TradingAgents Star History" src="https://api.star-history.com/svg?repos=TauricResearch/TradingAgents&type=Date" style="width: 80%; height: auto;" />
- </picture>
-</a>
-</div>
+# Trading212Agents: Multi-Agents LLM Financial Trading Framework with Trading212 API Integration 
 
 <div align="center">
 
@@ -47,9 +6,10 @@
 
 </div>
 
-## TradingAgents Framework
+## Trading212Agents Framework
 
-TradingAgents is a multi-agent trading framework that mirrors the dynamics of real-world trading firms. By deploying specialized LLM-powered agents: from fundamental analysts, sentiment experts, and technical analysts, to trader, risk management team, the platform collaboratively evaluates market conditions and informs trading decisions. Moreover, these agents engage in dynamic discussions to pinpoint the optimal strategy.
+This repository contains Trading212Agents, a fork of the original TradingAgents framework by TauricResearch. It extends the powerful multi-agent system to include direct integration with the Trading 212 API, allowing agents to make and execute trading decisions on a real Trading 212 account.
+The core TradingAgents framework mirrors the dynamics of a trading firm by deploying specialized LLM-powered agents—from fundamental analysts to risk managers—that collaboratively evaluate market conditions. This version adds a specialized Trading212 Trader Agent to interact with the brokerage.
 
 <p align="center">
   <img src="assets/schema.png" style="width: 100%; height: auto;">
@@ -83,6 +43,13 @@ Our framework decomposes complex trading tasks into specialized roles. This ensu
   <img src="assets/trader.png" width="70%" style="display: inline-block; margin: 0 2%;">
 </p>
 
+### Trading212 Trader Agent
+- Composes reports from the analysts and researchers, alongside Trading212 portfolio data to make informed trading decisions. It determines the timing and magnitude of trades based on comprehensive market insights.
+
+<p align="center">
+  <img src="assets/trader.png" width="70%" style="display: inline-block; margin: 0 2%;">
+</p>
+
 ### Risk Management and Portfolio Manager
 - Continuously evaluates portfolio risk by assessing market volatility, liquidity, and other risk factors. The risk management team evaluates and adjusts trading strategies, providing assessment reports to the Portfolio Manager for final decision.
 - The Portfolio Manager approves/rejects the transaction proposal. If approved, the order will be sent to the simulated exchange and executed.
@@ -95,9 +62,9 @@ Our framework decomposes complex trading tasks into specialized roles. This ensu
 
 ### Installation
 
-Clone TradingAgents:
+Clone Trading212Agents:
 ```bash
-git clone https://github.com/TauricResearch/TradingAgents.git
+git clone https://github.com/JRPrice5/Trading212Agents.git
 cd TradingAgents
 ```
 
@@ -122,6 +89,11 @@ export FINNHUB_API_KEY=$YOUR_FINNHUB_API_KEY
 You will need the OpenAI API for all the agents.
 ```bash
 export OPENAI_API_KEY=$YOUR_OPENAI_API_KEY
+```
+
+To programmatically manage your account and execute your own trading strategies, you can utilize the Trading 212 API.
+```bash
+export TRADING_212_API_KEY=$YOUR_TRADING_212_API_KEY
 ```
 
 ### CLI Usage
@@ -188,17 +160,33 @@ _, decision = ta.propagate("NVDA", "2024-05-10")
 print(decision)
 ```
 
-> For `online_tools`, we recommend enabling them for experimentation, as they provide access to real-time data. The agents' offline tools rely on cached data from our **Tauric TradingDB**, a curated dataset we use for backtesting. We're currently in the process of refining this dataset, and we plan to release it soon alongside our upcoming projects. Stay tuned!
+> For `online_tools`, we recommend enabling them for experimentation, as they provide access to real-time data. The agents' offline tools rely on cached data from the **Tauric TradingDB**, a curated dataset we use for backtesting. We're currently in the process of refining this dataset, and we plan to release it soon alongside our upcoming projects. Stay tuned!
 
 You can view the full list of configurations in `tradingagents/default_config.py`.
 
 ## Contributing
 
-We welcome contributions from the community! Whether it's fixing a bug, improving documentation, or suggesting a new feature, your input helps make this project better. If you are interested in this line of research, please consider joining our open-source financial AI research community [Tauric Research](https://tauric.ai/).
+Contributions are welcome and greatly appreciated! As a fork, this project's primary goal is to build upon the original TradingAgents framework by enhancing its real-world trading capabilities with the Trading 212 API.
+If you'd like to contribute, please follow these steps:
+- Fork the repository on GitHub.
+- Create a new branch for your feature or bug fix: git checkout -b feature/your-feature-name.
+- Make your changes and commit them with a clear, descriptive message.
+- Push your branch to your fork: git push origin feature/your-feature-name.
+- Submit a Pull Request to the main branch of the JRPrice5/Trading212Agents repository.
+
+
+I am particularly interested in contributions that:
+- Enhance or extend the Trading 212 integration.
+- Improve the existing agent capabilities or add new ones.
+- Fix bugs and improve the stability of the framework.
+- Improve documentation for clarity and ease of use.
+
+Please ensure your code adheres to the existing style and that you've tested your changes.
+
 
 ## Citation
 
-Please reference our work if you find *TradingAgents* provides you with some help :)
+Please cite the original paper if you find the TradingAgents framework helpful in your research.
 
 ```
 @misc{xiao2025tradingagentsmultiagentsllmfinancial,
